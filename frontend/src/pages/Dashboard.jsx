@@ -425,6 +425,12 @@ const Dashboard = () => {
           <main className="p-4 md:p-6 w-full max-w-full mx-auto">{renderSection()}</main>
         </div>
 
+        <div className="w-full bg-white/10 backdrop-blur-md border-b border-white/10 px-6 py-3 flex justify-between items-center">
+          <h2 className="text-white font-semibold text-lg">
+            Hello {user?.displayName || "User"}!
+          </h2>
+        </div>
+
         {/* Mobile bottom navigation */}
         <div className="md:hidden fixed bottom-0 left-0 right-0 z-40">
           <div className="glass-header flex flex-row justify-around p-2 backdrop-blur-md border-t border-white/10">
