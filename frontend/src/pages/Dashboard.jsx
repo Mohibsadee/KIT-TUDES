@@ -13,6 +13,7 @@ import { loadSlim } from '@tsparticles/slim';
 import '../css/glass.css';
 import Quote from '../components/Quote';
 
+
 // Import React Icons
 import {
   FiPieChart,
@@ -28,10 +29,16 @@ import {
   FiArrowRight,
   FiCalendar,
   FiBarChart2,
+   FiArrowUpRight
+  
 } from 'react-icons/fi';
+import { GoZap } from "react-icons/go";
+
+
 
 import { IoIosTimer } from "react-icons/io";
 import { LuNotebookPen } from "react-icons/lu";
+import ZenMode from '../components/ZenMode';
 
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState('overview');
@@ -116,6 +123,12 @@ const Dashboard = () => {
   };
   const navigateToQuizForge = () => navigate('/quizforge');
 
+  const [showZenMode, setShowZenMode] = useState(false);
+
+  if (showZenMode) {
+    return <ZenMode onClose={() => setShowZenMode(false)} />;
+  }
+
   const renderSection = () => {
     if (!user) return <div>Loading...</div>;
 
@@ -169,6 +182,27 @@ const Dashboard = () => {
               <div className="lg:col-span-2 w-full space-y-6">
                 <div className="glass-card p-6 rounded-2xl border border-white/10">
                   <UpComingClass userId={user.uid} compact />
+                </div>
+                <div className="glass-card p-6 rounded-2xl border border-white/10 bg-gradient-to-br from-blue-50 to-blue-100">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 bg-blue-500 rounded-full">
+                        <GoZap className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-800">Zen Mode</h3>
+                        <p className="text-sm text-gray-600">Focus without distractions</p>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => setShowZenMode(true)}
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors group"
+                    >
+                      <span>Enter</span>
+                      <FiArrowUpRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  </div>
                 </div>
                 <div className="glass-card p-6 rounded-2xl border border-white/10">
                   <StudyGoals userId={user.uid} compact />
@@ -308,8 +342,8 @@ const Dashboard = () => {
                     key={item.key}
                     onClick={() => handleNavigation(item.key)}
                     className={`w-full px-4 py-3 flex items-center justify-start gap-3 rounded-lg transition-all ${activeSection === item.key
-                        ? 'bg-indigo-600 text-white'
-                        : 'text-white/70 hover:bg-white/5'
+                      ? 'bg-indigo-600 text-white'
+                      : 'text-white/70 hover:bg-white/5'
                       }`}
                   >
                     <span>{item.icon}</span>
@@ -358,8 +392,8 @@ const Dashboard = () => {
                 key={item.key}
                 onClick={() => setActiveSection(item.key)}
                 className={`w-full px-4 py-3 flex items-center justify-start gap-3 rounded-lg transition-all ${activeSection === item.key
-                    ? 'bg-indigo-600 text-white'
-                    : 'text-white/70 hover:bg-white/5'
+                  ? 'bg-indigo-600 text-white'
+                  : 'text-white/70 hover:bg-white/5'
                   }`}
               >
                 <span>{item.icon}</span>
@@ -408,8 +442,8 @@ const Dashboard = () => {
                 key={item.key}
                 onClick={() => setActiveSection(item.key)}
                 className={`flex flex-col items-center p-2 rounded-lg transition-colors ${activeSection === item.key
-                    ? 'text-indigo-400'
-                    : 'text-white/70 hover:text-white'
+                  ? 'text-indigo-400'
+                  : 'text-white/70 hover:text-white'
                   }`}
               >
                 {item.icon}
