@@ -12,7 +12,8 @@ import { initParticlesEngine } from '@tsparticles/react';
 import { loadSlim } from '@tsparticles/slim';
 import '../css/glass.css';
 import Quote from '../components/Quote';
-
+import ZenMode from '../components/ZenMode';
+import Chatbot from '../components/Chatbot';
 
 // Import React Icons
 import {
@@ -29,16 +30,11 @@ import {
   FiArrowRight,
   FiCalendar,
   FiBarChart2,
-   FiArrowUpRight
-  
+  FiArrowUpRight
 } from 'react-icons/fi';
 import { GoZap } from "react-icons/go";
-
-
-
 import { IoIosTimer } from "react-icons/io";
 import { LuNotebookPen } from "react-icons/lu";
-import ZenMode from '../components/ZenMode';
 
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState('overview');
@@ -420,7 +416,6 @@ const Dashboard = () => {
             <h2 className="text-white font-semibold text-lg">
               Hello {user?.displayName || "User"}
             </h2>
-
           </div>
 
           {/* Dashboard content */}
@@ -452,6 +447,9 @@ const Dashboard = () => {
             ))}
           </div>
         </div>
+
+        {/* Chatbot Component */}
+        <Chatbot />
       </div>
     </div>
   );
