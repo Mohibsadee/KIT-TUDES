@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { auth } from '../firebase';
 import axios from 'axios';
 import { API_BASE_URL } from '../config';
+import { NavLink, useNavigate } from "react-router-dom";
 
 const ClassFlow = () => {
+  const navigate = useNavigate();
   const [classes, setClasses] = useState([]);
   const [formData, setFormData] = useState({
     subject: '',
@@ -18,7 +20,7 @@ const ClassFlow = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const daysOfWeek = ['Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat', 'Sun'];
 
   const convertTimeToMinutes = (timeStr) => {
     if (!timeStr) return 0;
@@ -52,11 +54,8 @@ const ClassFlow = () => {
   };
 
   useEffect(() => {
-    if (auth.currentUser) {
-      fetchClasses();
-    } else {
-      setLoading(false);
-    }
+    if (auth.currentUser) fetchClasses();
+    else setLoading(false);
   }, []);
 
   const fetchClasses = async () => {
@@ -69,8 +68,8 @@ const ClassFlow = () => {
       });
       setClasses(response.data);
     } catch (err) {
-      console.error('Error fetching classes:', err);
-      setError('Failed to fetch classes. Please check your connection.');
+      console.error(err);
+      setError('Failed to fetch classes.');
     } finally {
       setLoading(false);
     }
@@ -83,24 +82,25 @@ const ClassFlow = () => {
       duration: cls.duration,
       day: cls.day,
       instructor: cls.instructor || '',
-      color: cls.color || 'white',
+      color: 'white',
     });
     setEditingId(cls._id);
     setOverlapWarning('');
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this class?')) return;
+    if (!window.confirm('Delete this class?')) return;
     try {
       const token = await auth.currentUser.getIdToken();
       await axios.delete(`${API_BASE_URL}/api/classes/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      // Just refresh the data, don't navigate away
       fetchClasses();
+      // Navigate back with refresh flag
+      navigate('/', { state: { refreshClasses: true } });
     } catch (err) {
-      console.error('Error deleting class:', err);
-      setError('Failed to delete class. Please try again.');
+      console.error(err);
+      setError('Failed to delete class.');
     }
   };
 
@@ -108,170 +108,73 @@ const ClassFlow = () => {
     e.preventDefault();
     const overlap = checkForOverlap(formData.time, formData.duration, formData.day, editingId);
     if (overlap) return setOverlapWarning(overlap);
-    
     setOverlapWarning('');
     try {
       const token = await auth.currentUser.getIdToken();
       if (editingId) {
-        await axios.put(`${API_BASE_URL}/api/classes/${editingId}`, formData, { 
-          headers: { Authorization: `Bearer ${token}` } 
-        });
+        await axios.put(`${API_BASE_URL}/api/classes/${editingId}`, formData, { headers: { Authorization: `Bearer ${token}` } });
       } else {
-        await axios.post(`${API_BASE_URL}/api/classes`, formData, { 
-          headers: { Authorization: `Bearer ${token}` } 
-        });
+        await axios.post(`${API_BASE_URL}/api/classes`, formData, { headers: { Authorization: `Bearer ${token}` } });
       }
-      // Reset form and refresh data
-      setFormData({ subject: '', time: '', duration: 60, day: 'Mon', instructor: '', color: 'white' });
+      setFormData({ subject: '', time: '', duration: 60, day: 'Monday', instructor: '', color: 'white' });
       setEditingId(null);
       fetchClasses();
+      // Navigate back with refresh flag
+      navigate('/', { state: { refreshClasses: true } });
     } catch (err) {
-      console.error('Error saving class:', err);
-      setError('Failed to save class. Please try again.');
+      console.error(err);
+      setError('Failed to save class.');
     }
   };
 
-  const handleInputChange = (e) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-  };
+  const handleInputChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <span className="loading loading-spinner loading-lg text-gray-800"></span>
-      </div>
-    );
-  }
+  if (loading) return <div className="flex justify-center items-center h-64"><span className="loading loading-spinner loading-lg text-gray-800"></span></div>;
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-gray-50 min-h-screen">
+    <div className="max-w-6xl mx-auto p-6 bg-[#f2f2f2] min-h-screen">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">ClassFlow</h1>
 
-      {error && (
-        <div className="alert alert-error mb-4">
-          <span>{error}</span>
-          <button onClick={() => setError('')} className="btn btn-sm btn-ghost">×</button>
-        </div>
-      )}
+      {error && <div className="alert alert-error mb-4">{error}</div>}
 
-      <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-        <h2 className="text-xl font-semibold mb-4">
-          {editingId ? 'Edit Class' : 'Add New Class'}
-        </h2>
+      <div className="bg-white/80 backdrop-blur-md p-6 rounded-lg shadow-md mb-8 border border-gray-200">
+        <h2 className="text-xl font-semibold mb-4">{editingId ? 'Edit Class' : 'Add New Class'}</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
-            <input
-              className="input input-bordered w-full"
-              placeholder="Subject"
-              name="subject"
-              value={formData.subject}
-              onChange={handleInputChange}
-              required
-            />
-            <input
-              className="input input-bordered w-full"
-              type="time"
-              name="time"
-              value={formData.time}
-              onChange={handleInputChange}
-              required
-            />
-            <input
-              className="input input-bordered w-full"
-              type="number"
-              name="duration"
-              value={formData.duration}
-              onChange={handleInputChange}
-              min="15"
-              max="240"
-              step="15"
-              required
-              placeholder="Duration (minutes)"
-            />
-            <select
-              className="select select-bordered w-full"
-              name="day"
-              value={formData.day}
-              onChange={handleInputChange}
-              required
-            >
-              {daysOfWeek.map(day => (
-                <option key={day} value={day}>{day}</option>
-              ))}
+            <input className="input input-bordered bg-white/30 text-gray-800" placeholder="Subject" name="subject" value={formData.subject} onChange={handleInputChange} required />
+            <input className="input input-bordered bg-white/30 text-gray-800" type="time" name="time" value={formData.time} onChange={handleInputChange} required />
+            <input className="input input-bordered bg-white/30 text-gray-800" type="number" name="duration" value={formData.duration} onChange={handleInputChange} min="15" max="240" step="15" required placeholder="Duration" />
+            <select className="select select-bordered bg-white/30 text-gray-800" name="day" value={formData.day} onChange={handleInputChange} required>
+              {daysOfWeek.map(day => <option key={day} value={day}>{day}</option>)}
             </select>
-            <input
-              className="input input-bordered w-full"
-              name="instructor"
-              value={formData.instructor}
-              onChange={handleInputChange}
-              placeholder="Instructor (optional)"
-            />
+            <input className="input input-bordered bg-white/30 text-gray-800" name="instructor" value={formData.instructor} onChange={handleInputChange} placeholder="Instructor" />
           </div>
 
-          {overlapWarning && (
-            <div className="alert alert-warning">
-              <span>{overlapWarning}</span>
-            </div>
-          )}
+          {overlapWarning && <div className="alert alert-warning">{overlapWarning}</div>}
 
-          <div className="flex space-x-4">
-            <button type="submit" className="btn btn-primary">
-              {editingId ? 'Update Class' : 'Add Class'}
-            </button>
-            {editingId && (
-              <button
-                type="button"
-                className="btn btn-ghost"
-                onClick={() => {
-                  setFormData({ subject: '', time: '', duration: 60, day: 'Mon', instructor: '', color: 'white' });
-                  setEditingId(null);
-                  setOverlapWarning('');
-                }}
-              >
-                Cancel
-              </button>
-            )}
+          <div className="flex space-x-4 mt-4">
+            <button className="btn btn-primary bg-[#b6b09f] border-none hover:bg-[#eae4d5] text-gray-800">{editingId ? 'Update' : 'Add'}</button>
+            {editingId && <button type="button" className="btn btn-ghost text-gray-800" onClick={() => { setFormData({ subject: '', time: '', duration: 60, day: 'Monday', instructor: '', color: 'white' }); setEditingId(null); setOverlapWarning(''); }}>Cancel</button>}
           </div>
         </form>
       </div>
 
-      <div className="space-y-4">
-        <h2 className="text-2xl font-semibold mb-4">Your Classes</h2>
-        {classes.length > 0 ? (
-          classes.map(cls => (
-            <div key={cls._id} className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="font-semibold text-lg">{cls.subject}</h3>
-                  <p className="text-gray-600">
-                    {cls.time} • {cls.duration} mins • {cls.day}
-                  </p>
-                  {cls.instructor && (
-                    <p className="text-gray-500">Instructor: {cls.instructor}</p>
-                  )}
-                </div>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => handleEdit(cls)}
-                    className="btn btn-sm btn-outline"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(cls._id)}
-                    className="btn btn-sm btn-error btn-outline"
-                  >
-                    Delete
-                  </button>
-                </div>
+      <div className="grid gap-4">
+        {classes.length > 0 ? classes.map(cls => (
+          <div key={cls._id} className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+            <div className="flex justify-between items-start">
+              <div>
+                <h3 className="font-semibold text-gray-800">{cls.subject}</h3>
+                <p className="text-gray-600">{cls.time} • {cls.duration} mins • {cls.day}</p>
+                {cls.instructor && <p className="text-gray-500">Instructor: {cls.instructor}</p>}
+              </div>
+              <div className="flex space-x-2">
+                <button onClick={() => handleEdit(cls)} className="btn btn-sm btn-ghost text-gray-800">Edit</button>
+                <button onClick={() => handleDelete(cls._id)} className="btn btn-sm btn-ghost text-gray-800">Delete</button>
               </div>
             </div>
-          ))
-        ) : (
-          <div className="text-center py-8">
-            <p className="text-gray-500">No classes added yet.</p>
           </div>
-        )}
+        )) : <p className="text-gray-500 text-center py-8">No classes added yet.</p>}
       </div>
     </div>
   );
