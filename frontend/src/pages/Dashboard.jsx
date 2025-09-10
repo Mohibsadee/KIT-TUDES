@@ -13,7 +13,6 @@ import { loadSlim } from '@tsparticles/slim';
 import '../css/glass.css';
 import Quote from '../components/Quote';
 
-
 // Import React Icons
 import {
   FiPieChart,
@@ -33,7 +32,6 @@ import {
 
 import { IoIosTimer } from "react-icons/io";
 import { LuNotebookPen } from "react-icons/lu";
-
 
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState('overview');
@@ -67,38 +65,21 @@ const Dashboard = () => {
   }, []);
 
   const particlesOptions = {
-    background: {
-      color: {
-        value: "transparent",
-      },
-    },
+    background: { color: { value: "transparent" } },
     fpsLimit: 120,
     interactivity: {
       events: {
-        onHover: {
-          enable: true,
-          mode: "repulse",
-        },
-        onClick: {
-          enable: true,
-          mode: "push",
-        },
+        onHover: { enable: true, mode: "repulse" },
+        onClick: { enable: true, mode: "push" },
         resize: true,
       },
       modes: {
-        repulse: {
-          distance: 100,
-          duration: 0.4,
-        },
-        push: {
-          quantity: 4,
-        },
+        repulse: { distance: 100, duration: 0.4 },
+        push: { quantity: 4 },
       },
     },
     particles: {
-      color: {
-        value: "#3b82f6",
-      },
+      color: { value: "#3b82f6" },
       links: {
         color: "#9ca3af",
         distance: 150,
@@ -109,29 +90,15 @@ const Dashboard = () => {
       move: {
         direction: "none",
         enable: true,
-        outModes: {
-          default: "bounce",
-        },
+        outModes: { default: "bounce" },
         random: false,
         speed: 2,
         straight: false,
       },
-      number: {
-        value: 50,
-        density: {
-          enable: true,
-          area: 800,
-        },
-      },
-      opacity: {
-        value: 0.5,
-      },
-      shape: {
-        type: "circle",
-      },
-      size: {
-        value: { min: 1, max: 3 },
-      },
+      number: { value: 50, density: { enable: true, area: 800 } },
+      opacity: { value: 0.5 },
+      shape: { type: "circle" },
+      size: { value: { min: 1, max: 3 } },
     },
     detectRetina: true,
   };
@@ -141,22 +108,13 @@ const Dashboard = () => {
     navigate('/login');
   };
 
-  const toggleSidebar = () => {
-    setSidebarCollapsed(!sidebarCollapsed);
-  };
-
-  const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
-  };
-
+  const toggleSidebar = () => setSidebarCollapsed(!sidebarCollapsed);
+  const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
   const handleNavigation = (section) => {
     setActiveSection(section);
     setMobileMenuOpen(false);
   };
-
-  const navigateToQuizForge = () => {
-    navigate('/quizforge');
-  };
+  const navigateToQuizForge = () => navigate('/quizforge');
 
   const renderSection = () => {
     if (!user) return <div>Loading...</div>;
@@ -167,12 +125,14 @@ const Dashboard = () => {
           <div className="space-y-6">
             {/* Quiz Inspiration Section */}
             <div className="glass-card p-6 rounded-2xl bg-gradient-to-r from-indigo-500/20 to-purple-600/20 border border-white/10 relative overflow-hidden">
-              {init && <Particles
-                id="quiz-particles"
-                particlesLoaded={particlesLoaded}
-                options={particlesOptions}
-                className="absolute inset-0 z-0"
-              />}
+              {init && (
+                <Particles
+                  id="quiz-particles"
+                  particlesLoaded={particlesLoaded}
+                  options={particlesOptions}
+                  className="absolute inset-0 z-0"
+                />
+              )}
 
               <div className="relative z-10">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4">
@@ -189,7 +149,6 @@ const Dashboard = () => {
                       <FiArrowRight className="animate-pulse" />
                     </button>
                   </div>
-
 
                   <div className="hidden md:flex items-center justify-center">
                     <div className="relative">
@@ -209,26 +168,20 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 w-full space-y-6">
                 <div className="glass-card p-6 rounded-2xl border border-white/10">
-
                   <UpComingClass userId={user.uid} compact />
                 </div>
-
-
                 <div className="glass-card p-6 rounded-2xl border border-white/10">
-
                   <StudyGoals userId={user.uid} compact />
                 </div>
               </div>
 
               <div className="space-y-6">
                 <div className="glass-card p-6 rounded-2xl border border-white/10">
-
                   <Quote />
                 </div>
                 <div className="glass-card p-6 rounded-2xl border border-white/10">
                   <FinancialHealth userId={user.uid} compact />
                 </div>
-
                 <div className="glass-card p-6 rounded-2xl border border-white/10">
                   <h3 className="text-lg font-semibold text-white mb-4">Time Tracker</h3>
                   <TimeTracker userId={user.uid} compact />
@@ -237,7 +190,6 @@ const Dashboard = () => {
             </div>
           </div>
         );
-
       case 'classes':
         return (
           <div className="glass-card p-6 rounded-2xl border border-white/10">
@@ -306,12 +258,14 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-slate-900 via-blue-950 to-gray-700 relative">
-      {init && <Particles
-        id="background-particles"
-        particlesLoaded={particlesLoaded}
-        options={particlesOptions}
-        className="absolute inset-0 z-0"
-      />}
+      {init && (
+        <Particles
+          id="background-particles"
+          particlesLoaded={particlesLoaded}
+          options={particlesOptions}
+          className="absolute inset-0 z-0"
+        />
+      )}
 
       <div className="relative z-10 flex flex-col md:flex-row w-full">
         {/* Mobile header */}
@@ -354,8 +308,8 @@ const Dashboard = () => {
                     key={item.key}
                     onClick={() => handleNavigation(item.key)}
                     className={`w-full px-4 py-3 flex items-center justify-start gap-3 rounded-lg transition-all ${activeSection === item.key
-                      ? 'bg-indigo-600 text-white'
-                      : 'text-white/70 hover:bg-white/5'
+                        ? 'bg-indigo-600 text-white'
+                        : 'text-white/70 hover:bg-white/5'
                       }`}
                   >
                     <span>{item.icon}</span>
@@ -378,10 +332,16 @@ const Dashboard = () => {
         )}
 
         {/* Desktop sidebar */}
-        <aside className={`hidden md:flex glass-sidebar flex-col backdrop-blur-md transition-all duration-300 border-r border-white/10 ${sidebarCollapsed ? 'w-20' : 'w-64'}`}>
+        <aside
+          className={`hidden md:flex glass-sidebar flex-col backdrop-blur-md transition-all duration-300 border-r border-white/10 ${sidebarCollapsed ? 'w-20' : 'w-64'
+            }`}
+        >
           <div className="h-20 flex items-center justify-between border-b border-white/10 px-4">
             {!sidebarCollapsed && <h1 className="text-xl font-bold text-white">KitÉtudes</h1>}
-            <button onClick={toggleSidebar} className="text-white p-2 rounded-lg hover:bg-white/10 transition-colors">
+            <button
+              onClick={toggleSidebar}
+              className="text-white p-2 rounded-lg hover:bg-white/10 transition-colors"
+            >
               {sidebarCollapsed ? <FiChevronRight size={20} /> : <FiChevronLeft size={20} />}
             </button>
           </div>
@@ -393,14 +353,13 @@ const Dashboard = () => {
               { key: 'study', icon: <FiTarget size={20} />, label: 'Study Goals' },
               { key: 'tracker', icon: <IoIosTimer size={20} />, label: 'Tracker' },
               { key: 'exam', icon: <LuNotebookPen size={20} />, label: 'Exam' },
-
             ].map(item => (
               <button
                 key={item.key}
                 onClick={() => setActiveSection(item.key)}
                 className={`w-full px-4 py-3 flex items-center justify-start gap-3 rounded-lg transition-all ${activeSection === item.key
-                  ? 'bg-indigo-600 text-white'
-                  : 'text-white/70 hover:bg-white/5'
+                    ? 'bg-indigo-600 text-white'
+                    : 'text-white/70 hover:bg-white/5'
                   }`}
               >
                 <span>{item.icon}</span>
@@ -420,15 +379,18 @@ const Dashboard = () => {
           </div>
         </aside>
 
-        {/* Main content */}
+        {/* Main content with Top Bar */}
         <div className="flex-1 flex flex-col overflow-auto pb-16 md:pb-0 md:pt-0 pt-16">
-          <main className="p-4 md:p-6 w-full max-w-full mx-auto">{renderSection()}</main>
-        </div>
+          {/* Top bar */}
+          <div className="w-full bg-white/10 backdrop-blur-md border-b border-white/10 px-6 py-7 flex justify-between items-center">
+            <h2 className="text-white font-semibold text-lg">
+              Hello {user?.displayName || "User"}
+            </h2>
 
-        <div className="w-full bg-white/10 backdrop-blur-md border-b border-white/10 px-6 py-3 flex justify-between items-center">
-          <h2 className="text-white font-semibold text-lg">
-            Hello {user?.displayName || "User"}!
-          </h2>
+          </div>
+
+          {/* Dashboard content */}
+          <main className="p-4 md:p-6 w-full max-w-full mx-auto">{renderSection()}</main>
         </div>
 
         {/* Mobile bottom navigation */}
@@ -441,18 +403,17 @@ const Dashboard = () => {
               { key: 'study', icon: <FiTarget size={20} />, label: 'Study' },
               { key: 'tracker', icon: <IoIosTimer size={20} />, label: 'Tracker' },
               { key: 'exam', icon: <LuNotebookPen size={20} />, label: 'Exam' },
-
             ].map(item => (
               <button
                 key={item.key}
                 onClick={() => setActiveSection(item.key)}
-                className={`flex flex-col items-center p-2 rounded-lg transition-all ${activeSection === item.key
-                  ? 'text-indigo-400'
-                  : 'text-white/70'
+                className={`flex flex-col items-center p-2 rounded-lg transition-colors ${activeSection === item.key
+                    ? 'text-indigo-400'
+                    : 'text-white/70 hover:text-white'
                   }`}
               >
-                <span>{item.icon}</span>
-                <span className="text-xs mt-1">{item.label}</span>
+                {item.icon}
+                <span className="text-[10px] mt-1">{item.label}</span>
               </button>
             ))}
           </div>
