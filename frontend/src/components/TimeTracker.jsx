@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, createContext, useContext } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { auth } from '../firebase';
 import axios from 'axios';
 import { API_BASE_URL } from '../config';
@@ -7,166 +7,9 @@ import { FaPlay, FaPause, FaStop, FaSave } from 'react-icons/fa';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
+import { TimerProvider, useTimer } from './TimerContext';
 
-// Create Timer Context
-const TimerContext = createContext();
-
-// Custom hook to use the timer
-export const useTimer = () => {
-  const context = useContext(TimerContext);
-  if (!context) {
-    throw new Error('useTimer must be used within a TimerProvider');
-  }
-  return context;
-};
-
-// Timer Provider Component
-export const TimerProvider = ({ children }) => {
-  const POMODORO_WORK_TIME = 25 * 60;
-  const POMODORO_BREAK_TIME = 5 * 60;
-
-  // Load state from localStorage or use defaults
-  const loadState = () => {
-    try {
-      const savedState = localStorage.getItem('timerState');
-      if (savedState) {
-        return JSON.parse(savedState);
-      }
-    } catch (e) {
-      console.error('Failed to load timer state:', e);
-    }
-
-    return {
-      time: 0,
-      isRunning: false,
-      mode: 'normal',
-      pomodoroCount: 0,
-      pomodoroPhase: 'work'
-    };
-  };
-
-  const [time, setTime] = useState(loadState().time);
-  const [isRunning, setIsRunning] = useState(loadState().isRunning);
-  const [mode, setMode] = useState(loadState().mode);
-  const [pomodoroCount, setPomodoroCount] = useState(loadState().pomodoroCount);
-  const [pomodoroPhase, setPomodoroPhase] = useState(loadState().pomodoroPhase);
-
-  // Save state to localStorage whenever it changes
-  useEffect(() => {
-    const timerState = {
-      time,
-      isRunning,
-      mode,
-      pomodoroCount,
-      pomodoroPhase
-    };
-
-    localStorage.setItem('timerState', JSON.stringify(timerState));
-  }, [time, isRunning, mode, pomodoroCount, pomodoroPhase]);
-
-  const handleStart = () => {
-    setIsRunning(true);
-  };
-
-  const handlePause = () => {
-    setIsRunning(false);
-  };
-
-  const handleReset = () => {
-    setIsRunning(false);
-    setTime(0);
-    if (mode === 'pomodoro') {
-      setPomodoroPhase('work');
-    }
-  };
-
-  const toggleMode = () => {
-    const newMode = mode === 'normal' ? 'pomodoro' : 'normal';
-    setMode(newMode);
-    setTime(0);
-    setIsRunning(false);
-
-    if (newMode === 'pomodoro') {
-      setPomodoroPhase('work');
-    }
-  };
-
-  // Timer logic - runs every second when isRunning is true
-  useEffect(() => {
-    let interval = null;
-
-    if (isRunning) {
-      interval = setInterval(() => {
-        setTime(prevTime => {
-          const newTime = prevTime + 1;
-
-          // Pomodoro logic
-          if (mode === 'pomodoro') {
-            const timeLimit = pomodoroPhase === 'work'
-              ? POMODORO_WORK_TIME
-              : POMODORO_BREAK_TIME;
-
-            if (newTime >= timeLimit) {
-              // Play alarm sound
-              try {
-                const audio = new Audio('/alarm-sound.mp3');
-                audio.play().catch(e => console.log("Audio play failed:", e));
-              } catch (e) {
-                console.error("Failed to play alarm:", e);
-              }
-
-              // Show notification if permitted
-              if ('Notification' in window && Notification.permission === 'granted') {
-                new Notification(
-                  `Pomodoro ${pomodoroPhase === 'work' ? 'Break' : 'Work'} Time!`,
-                  { body: `Your ${pomodoroPhase} session is complete.` }
-                );
-              }
-
-              // Switch phase
-              if (pomodoroPhase === 'work') {
-                setPomodoroPhase('break');
-                setPomodoroCount(prev => prev + 1);
-                setTime(0);
-                return 0;
-              } else {
-                setPomodoroPhase('work');
-                setTime(0);
-                return 0;
-              }
-            }
-          }
-
-          return newTime;
-        });
-      }, 1000);
-    }
-
-    return () => clearInterval(interval);
-  }, [isRunning, mode, pomodoroPhase, POMODORO_WORK_TIME, POMODORO_BREAK_TIME]);
-
-  const value = {
-    time,
-    isRunning,
-    mode,
-    pomodoroCount,
-    pomodoroPhase,
-    handleStart,
-    handlePause,
-    handleReset,
-    toggleMode,
-    POMODORO_WORK_TIME,
-    POMODORO_BREAK_TIME
-  };
-
-  return (
-    <TimerContext.Provider value={value}>
-      {children}
-    </TimerContext.Provider>
-  );
-};
-
-// TimeTracker Component with built-in TimerProvider
+// TimeTracker Component
 const TimeTracker = ({ userId, compact, detailed }) => {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -204,7 +47,7 @@ const TimeTracker = ({ userId, compact, detailed }) => {
 
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [time, isRunning]);
+  }, []);
 
   const fetchSessions = async () => {
     try {
@@ -232,21 +75,16 @@ const TimeTracker = ({ userId, compact, detailed }) => {
     }
   };
 
-  useEffect(() => {
-    const handleAuthStateChange = (user) => {
-      if (!user && time > 0 && isRunning) {
-        handleEnd();
-      }
-    };
-
-    const unsubscribe = auth.onAuthStateChanged(handleAuthStateChange);
-    return unsubscribe;
-  }, [time, isRunning]);
-
   const handleEnd = async () => {
     if (time <= 0) return;
     try {
-      const token = await auth.currentUser.getIdToken();
+      const user = auth.currentUser;
+      if (!user) {
+        console.warn("No authenticated user, cannot save session");
+        return;
+      }
+      
+      const token = await user.getIdToken();
       await axios.post(`${API_BASE_URL}/api/study-sessions`, { duration: time }, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -263,21 +101,6 @@ const TimeTracker = ({ userId, compact, detailed }) => {
       console.error("Error saving session:", err);
     }
   };
-
-  useEffect(() => {
-    const handleUnload = async (e) => {
-      if (time > 0 && isRunning) {
-        e.preventDefault();
-        if (window.confirm('You have an active timer. Save before leaving?')) {
-          await handleEnd();
-        } else {
-          handleReset();
-        }
-      }
-    };
-    window.addEventListener('unload', handleUnload);
-    return () => window.removeEventListener('unload', handleUnload);
-  }, [time, isRunning]);
 
   const formatTime = (seconds) => {
     const h = String(Math.floor(seconds / 3600)).padStart(2, "0");
@@ -299,6 +122,7 @@ const TimeTracker = ({ userId, compact, detailed }) => {
   };
 
   const formatMinutes = (seconds) => {
+    if (seconds === null) return '00:00';
     const m = String(Math.floor(seconds / 60)).padStart(2, "0");
     const s = String(seconds % 60).padStart(2, "0");
     return `${m}:${s}`;
