@@ -18,12 +18,15 @@ const corsOptions = {
     'http://localhost:3000',
     'http://127.0.0.1:3000',
     'http://localhost:5173',
-    'https://kit-tudes.vercel.app/'
+    'https://kit-tudes.vercel.app',
+    'https://kit-tudes-3olneudwe-mohibs-projects-b96dcde4.vercel.app' // your actual Vercel URL
   ],
   credentials: true,
 };
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use(cors({ origin: true, credentials: true }));
+
 
 // -------------------------
 // Firebase Admin setup
@@ -47,7 +50,7 @@ if (!admin.apps.length) {
 }
 
 // -------------------------
-// Health check endpoints
+// Health check
 // -------------------------
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Server is running' });
@@ -58,21 +61,28 @@ app.get('/api/test', (req, res) => {
 });
 
 // -------------------------
-// Connect to MongoDB Atlas
+// MongoDB Atlas connection
 // -------------------------
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('✅ MongoDB connected to Atlas'))
-.catch(err => console.error('❌ MongoDB connection error:', err));
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('✅ MongoDB connected to Atlas'))
+  .catch(err => console.error('❌ MongoDB connection error:', err));
+
+mongoose.connection.on('connected', () => {
+  console.log('📡 Mongoose connected');
+});
+mongoose.connection.on('error', (err) => {
+  console.error('❌ Mongoose error:', err);
+});
+mongoose.connection.on('disconnected', () => {
+  console.log('⚠️ Mongoose disconnected');
+});
 
 // -------------------------
 // Firebase Auth middleware
 // -------------------------
 const verifyFirebaseToken = async (req, res, next) => {
   if (admin.apps.length === 0) {
-    req.user = { uid: 'test-user-id' };
+    req.user = { uid: 'test-user-id' }; // fallback for dev
     return next();
   }
 
