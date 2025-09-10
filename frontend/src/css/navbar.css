@@ -1,0 +1,68 @@
+/* Navbar.css */
+:root {
+  --navbar-dark: #1E2022;
+  --navbar-medium: #526D82;
+  --navbar-light: #DDE6ED;
+  --navbar-muted: #9DB2BF;
+  --navbar-border: rgba(82, 109, 130, 0.3);
+  --navbar-bg: rgba(240, 245, 249, 0.95);
+}
+
+.navbar-header {
+    background: var(--navbar-bg);
+    box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid var(--navbar-border);
+    backdrop-filter: blur(10px);
+}
+
+.navbar-card {
+    backdrop-filter: blur(10px);
+    background: rgba(39, 55, 77, 0.8);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+.navbar-btn {
+    backdrop-filter: blur(10px);
+    background: rgba(82, 109, 130, 0.7);
+    box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(157, 178, 191, 0.3);
+    transition: all 0.3s ease;
+}
+
+.navbar-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px 0 rgba(0, 0, 0, 0.2);
+    background: rgba(82, 109, 130, 0.9);
+}
+
+.navbar-avatar {
+    background: rgba(82, 109, 130, 0.5);
+    box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(157, 178, 191, 0.3);
+    transition: all 0.3s ease;
+}
+
+.navbar-avatar:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 24px 0 rgba(0, 0, 0, 0.2);
+}
+
+.text-navbar-dark {
+    color: var(--navbar-dark);
+}
+
+.text-navbar-muted {
+    color: var(--navbar-muted);
+}
+
+.border-navbar-border {
+    border-color: var(--navbar-border);
+}
+
+.hover\:bg-navbar-medium:hover {
+    background-color: var(--navbar-medium);
+}
+
+.hover\:bg-navbar-light:hover {
+    background-color: var(--navbar-light);
+}
