@@ -4,6 +4,8 @@ import axios from 'axios';
 import { API_BASE_URL } from '../config';
 import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { useNavigate } from "react-router-dom";
+
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -11,6 +13,8 @@ const FinancialHealth = ({ userId, compact = false, detailed = false }) => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAlert, setShowAlert] = useState(false);
+    const navigate = useNavigate();
+
 
 
   useEffect(() => {
@@ -254,10 +258,10 @@ const FinancialHealth = ({ userId, compact = false, detailed = false }) => {
 
       <div className="text-center">
         <button
-          onClick={() => window.location.href = '/cashtrack'}
+          onClick={() => navigate("/cashtrack")}
           className="bg-gray-800 text-white px-6 py-2 rounded-lg hover:bg-gray-900 transition-colors"
         >
-          {transactions.length === 0 ? 'Start Tracking' : 'View Details'}
+          {transactions.length === 0 ? "Start Tracking" : "View Details"}
         </button>
       </div>
 
