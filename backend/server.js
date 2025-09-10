@@ -11,10 +11,63 @@ dotenv.config();
 const app = express();
 
 // CORS configuration
+// CORS configuration
 const corsOptions = {
-  origin: ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:5173','https://kit-tudes.vercel.app'],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, Postman, etc.)
+    if (!origin) return callback(null, true);
+
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
+      'http://localhost:5173',
+      'https://kit-tudes-3olneudwe-mohibs-projects-b96dcde4.vercel.app',
+      'https://kit-tudes.vercel.app',
+      /\.vercel\.app$/ // Regex to allow all Vercel deployments
+    ];
+
+    if (allowedOrigins.some(allowedOrigin => {
+      if (typeof allowedOrigin === 'string') {
+        return origin === allowedOrigin;
+      } else if (allowedOrigin instanceof RegExp) {
+        return allowedOrigin.test(origin);
+      }
+      return false;
+    })) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
+  optionsSuccessStatus: 200
 };
+
+app.use(cors(corsOptions));
+
+// Handle preflight requests
+app.options('*', cors(corsOptions));
+
+// Add CORS headers to all responses
+app.use((req, res, next) => {
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://localhost:5173',
+    'https://kit-tudes-3olneudwe-mohibs-projects-b96dcde4.vercel.app',
+    'https://kit-tudes.vercel.app',
+    'https://*.vercel.app'
+  ];
+
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  next();
+});
 app.use(cors(corsOptions));
 app.use(express.json());
 
@@ -72,6 +125,8 @@ const verifyFirebaseToken = async (req, res, next) => {
   }
 };
 
+
+
 // Routes
 app.use('/api/users', userRoutes);
 app.use('/api/classes', verifyFirebaseToken, require('./routes/classes'));
@@ -80,6 +135,9 @@ app.use('/api/transactions', verifyFirebaseToken, require('./routes/transactions
 app.use('/api/completed-tasks', verifyFirebaseToken, require('./routes/completedTask'));
 app.use('/api/study-sessions', verifyFirebaseToken, require('./routes/study-sessions'));
 app.use('/api/quiz-questions', verifyFirebaseToken, require('./routes/quiz-questions'));
+
+
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
