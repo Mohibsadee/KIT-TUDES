@@ -10,14 +10,14 @@ const UpcomingClass = ({ compact = false }) => {
   const [loading, setLoading] = useState(true);
   const [selectedSubject, setSelectedSubject] = useState(null);
   const navigate = useNavigate();
-  const location = useLocation(); // Added useLocation
+  const location = useLocation();
 
   const days = ['Sun', 'Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat'];
   const today = new Date().toLocaleDateString('en-US', { weekday: 'short' });
 
   useEffect(() => {
     if (auth.currentUser) fetchClasses();
-  }, [location.state]); // Added location.state as dependency
+  }, [location.state]);
 
   const fetchClasses = async () => {
     try {
@@ -152,17 +152,16 @@ const UpcomingClass = ({ compact = false }) => {
         })}
       </div>
 
-      <div className='flex flex-col w-full justify-center p-6  items-right'>
+      <div className='flex flex-col w-full justify-center p-6 items-center'>
         {!compact && (
           <button
             onClick={() => navigate('/classflow')}
-            title="Edit Study Goals"
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-4 
-                  bg-white shadow-md border border-gray-200 rounded-xl 
-                  hover:shadow-lg hover:bg-gray-50 transition-all text-gray-800 font-medium"
+            className="flex items-center gap-3 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl 
+                     shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 
+                     border border-blue-500 min-w-[200px] justify-center"
           >
-            <FaEdit size={20} className="text-blue-600" />
-            <span>Edit Classes</span>
+            <FaEdit size={18} className="flex-shrink-0" />
+            <span className="font-semibold">Edit Class Schedule</span>
           </button>
         )}
       </div>
